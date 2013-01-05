@@ -1,1 +1,6 @@
 name = Photobox
+description = "Integrates Photobox image gallery plugin."
+core = 7.x
+package = "Fields"
+dependencies[] = image
+dependencies[] = jquery_update

@@ -1,0 +1,222 @@
+<?php
+/**
+ * @file
+ * Main file for the Photobox module.
+ */
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function photobox_field_formatter_info() {
+  $formatters = array(
+    'photobox' => array(
+      'label'       => t('Photobox'),
+      //'field types' => array('image', 'imagefield_crop', 'media', 'field_collection'),
+      'field types' => array('image'),
+      'settings'    => array(
+        'photobox_content_image_style' => '',
+        'photobox_image_style'         => '',
+        'photobox_gallery'             => 'post',
+        'photobox_loop'                => 1,
+        'photobox_thumbs'              => 1,
+        'photobox_counter'             => 1,
+        'photobox_hide_flash'          => 1,
+        'photobox_keys_close'          => '27, 88, 67',
+        'photobox_keys_prev'           => '37, 80',
+        'photobox_keys_next'           => '39, 78',
+      ),
+    ),
+  );
+  return $formatters;
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function photobox_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $options = image_style_options(FALSE);
+  $element['photobox_content_image_style'] = array(
+    '#title'          => t('Content image style'),
+    '#type'           => 'select',
+    '#default_value'  => $settings['photobox_content_image_style'],
+    '#empty_option'   => t('None (original image)'),
+    '#options'        => $options,
+  );
+  $element['photobox_image_style'] = array(
+    '#title'          => t('Photobox image style'),
+    '#type'           => 'select',
+    '#default_value'  => $settings['photobox_image_style'],
+    '#empty_option'   => t('None (original image)'),
+    '#options'        => $options,
+  );
+  
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function photobox_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $summary = array();
+
+  $image_styles = image_style_options(FALSE);
+  // Unset possible 'No defined styles' option.
+  unset($image_styles['']);
+  // Styles could be lost because of enabled/disabled modules that defines
+  // their styles in code.
+  if (isset($image_styles[$settings['photobox_content_image_style']])) {
+    $summary[] = t('Content image style: @style', array('@style' => $image_styles[$settings['photobox_content_image_style']]));
+  }
+  else {
+    $summary[] = t('Content image style: @style', array('@style' => t('Original image')));
+  }
+  if (isset($image_styles[$settings['photobox_image_style']])) {
+    $summary[] = t('Photobox image style: @style', array('@style' => $image_styles[$settings['photobox_image_style']]));
+  }
+  else {
+    $summary[] = t('Photobox image style: @style', array('@style' => t('Original image')));
+  }
+  
+  return implode('<br />', $summary);
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function photobox_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  drupal_add_library('photobox', 'photobox');
+  $element = array();
+
+  foreach ($items as $delta => $item) {
+    $element[$delta] = array(
+      '#theme' => 'photobox_image_formatter',
+      '#item' => $item,
+      '#entity_type' => $entity_type,
+      '#entity' => $entity,
+      '#field' => $field,
+      '#display_settings' => $display['settings'],
+    );
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function photobox_theme() {
+  return array(
+    'photobox_image_formatter' => array(
+      'variables' => array(
+        'item' => NULL,
+        'entity_type' => NULL,
+        'entity' => NULL,
+        'field' => array(),
+        'display_settings' => array(),
+      ),
+      'file' => 'photobox.theme.inc',
+    ),
+    'photobox_imagefield' => array(
+      'variables' => array(
+        'image' => array(),
+        'path' => NULL,
+        'title' => NULL,
+        'gid' => NULL,
+      ),
+      'file' => 'photobox.theme.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_library().
+ */
+function photobox_library() {
+  $libraries['photobox'] = array(
+    'title' => 'Photobox',
+    'website' => 'http://dropthebit.com/500/photobox-css3-image-gallery-jquery-plugin/',
+    'version' => _photobox_library_version(),
+    'js' => array(
+      _photobox_library_path_js() => array(),
+      drupal_get_path('module', 'photobox') . '/photobox.js' => array(),
+      array(
+        'type' => 'setting',
+        'data' => array(
+          'photobox' => array(),
+        ),
+      ),
+    ),
+    'css' => array(
+      _photobox_library_path() . '/photobox.css' => array('type' => 'file'),
+      //drupal_get_path('module', 'photobox') . '/photobox.css' => array('type' => 'file'),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Returns the path to the Photobox library.
+ */
+function _photobox_library_path() {
+  $library_path = &drupal_static(__FUNCTION__, NULL);
+  
+  if (is_null($library_path)) {
+    $library_path = variable_get('photobox_library_path', module_exists('libraries') ? libraries_get_path('photobox') : 'sites/all/libraries/photobox');
+    if (file_exists($library_path . '/photobox.js') || file_exists($library_path . '/photobox.min.js')) {
+    }
+    elseif (file_exists($library_path . '/photobox/photobox.js') || file_exists($library_path . '/photobox/photobox.min.js')) {
+      $library_path .= '/photobox';
+    }
+    else {
+      watchdog('photobox', 'Photobox library is missing.', array(), WATCHDOG_ERROR);
+      $library_path = FALSE;
+    }
+  }
+  
+  return $library_path;
+}
+
+/**
+ * Returns the path to the Photobox library js file.
+ */
+function _photobox_library_path_js() {
+  $library_path_js = &drupal_static(__FUNCTION__, NULL);
+  
+  if (is_null($library_path_js) && $library_path = _photobox_library_path()) {
+    if (file_exists($library_path . '/photobox.min.js')) {
+      $library_path_js = $library_path . '/photobox.min.js';
+    }
+    elseif (file_exists($library_path . '/photobox.js')) {
+      $library_path_js = $library_path . '/photobox.js';
+    }
+  }
+  
+  return $library_path_js;
+}
+
+/**
+ * Returns version of the Photobox library.
+ */
+function _photobox_library_version() {
+  $version = &drupal_static(__FUNCTION__, NULL);
+  
+  if (is_null($version) && $library_path = _photobox_library_path()) {
+    $pattern = '/photobox v([0-9\.a-z]+)/';
+    $photobox_js = file_get_contents(_photobox_library_path_js(), NULL, NULL, 0, 32);
+    if (preg_match($pattern, $photobox_js, $matches)) {
+      $version = $matches[1];
+    }
+    else {
+      $version = 'Unknown';
+    }
+  }
+  
+  return $version;
+}
