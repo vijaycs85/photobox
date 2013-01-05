@@ -2,7 +2,10 @@
 
   Drupal.behaviors.photobox = {};
   Drupal.behaviors.photobox.attach = function(context, settings) {
-    $('a.photobox', context).photobox();
+    /*  $(document).ready() wrapper required to properly initialize Photobox. */
+    $(document).ready(function(){
+      $('a.photobox', context).photobox();
+    });
   };
 
 })(jQuery);
