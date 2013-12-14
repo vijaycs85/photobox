@@ -52,7 +52,7 @@ function photobox_field_formatter_settings_form($field, $instance, $view_mode, $
     '#empty_option'   => t('None (original image)'),
     '#options'        => $options,
   );
-  
+
   return $element;
 }
 
@@ -82,7 +82,7 @@ function photobox_field_formatter_settings_summary($field, $instance, $view_mode
   else {
     $summary[] = t('Photobox image style: @style', array('@style' => t('Original image')));
   }
-  
+
   return implode('<br />', $summary);
 }
 
@@ -110,7 +110,7 @@ function photobox_field_formatter_view($entity_type, $entity, $field, $instance,
 /**
  * Implements hook_theme().
  */
-function photobox_theme() {
+function photobox_theme($existing, $type, $theme, $path) {
   return array(
     'photobox_image_formatter' => array(
       'variables' => array(
@@ -166,7 +166,7 @@ function photobox_library() {
  */
 function _photobox_library_path() {
   $library_path = &drupal_static(__FUNCTION__, NULL);
-  
+
   if (is_null($library_path)) {
     $library_path = variable_get('photobox_library_path', module_exists('libraries') ? libraries_get_path('photobox') : 'sites/all/libraries/photobox');
     if (file_exists($library_path . '/photobox.js') || file_exists($library_path . '/photobox.min.js')) {
@@ -179,7 +179,7 @@ function _photobox_library_path() {
       $library_path = FALSE;
     }
   }
-  
+
   return $library_path;
 }
 
@@ -188,7 +188,7 @@ function _photobox_library_path() {
  */
 function _photobox_library_path_js() {
   $library_path_js = &drupal_static(__FUNCTION__, NULL);
-  
+
   if (is_null($library_path_js) && $library_path = _photobox_library_path()) {
     if (file_exists($library_path . '/photobox.min.js')) {
       $library_path_js = $library_path . '/photobox.min.js';
@@ -197,7 +197,7 @@ function _photobox_library_path_js() {
       $library_path_js = $library_path . '/photobox.js';
     }
   }
-  
+
   return $library_path_js;
 }
 
@@ -206,7 +206,7 @@ function _photobox_library_path_js() {
  */
 function _photobox_library_version() {
   $version = &drupal_static(__FUNCTION__, NULL);
-  
+
   if (is_null($version) && $library_path = _photobox_library_path()) {
     $pattern = '/photobox v([0-9\.a-z]+)/';
     $photobox_js = file_get_contents(_photobox_library_path_js(), NULL, NULL, 0, 32);
@@ -217,6 +217,6 @@ function _photobox_library_version() {
       $version = 'Unknown';
     }
   }
-  
+
   return $version;
 }
