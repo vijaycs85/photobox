@@ -91,6 +91,10 @@ function photobox_field_formatter_settings_summary($field, $instance, $view_mode
  */
 function photobox_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   drupal_add_library('photobox', 'photobox');
+  drupal_add_js(drupal_get_path('module', 'photobox') . '/photobox.js');
+  //drupal_add_js(array('photobox' => array()), 'setting');
+  drupal_add_css(drupal_get_path('module', 'photobox') . '/photobox.css');
+
   $element = array();
 
   foreach ($items as $delta => $item) {
@@ -144,17 +148,9 @@ function photobox_library() {
     'version' => _photobox_library_version(),
     'js' => array(
       _photobox_library_path_js() => array(),
-      drupal_get_path('module', 'photobox') . '/photobox.js' => array(),
-      array(
-        'type' => 'setting',
-        'data' => array(
-          'photobox' => array(),
-        ),
-      ),
     ),
     'css' => array(
       _photobox_library_path() . '/photobox.css' => array('type' => 'file'),
-      //drupal_get_path('module', 'photobox') . '/photobox.css' => array('type' => 'file'),
     ),
   );
 
