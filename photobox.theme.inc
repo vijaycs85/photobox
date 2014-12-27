@@ -29,12 +29,49 @@ function theme_photobox_image_formatter($variables) {
     'style_name' => $settings['photobox_content_image_style'],
   );
 
+  if ($variables['delta'] == 0 && !empty($settings['photobox_content_image_style_first'])) {
+    $image['style_name'] = $settings['photobox_content_image_style_first'];
+  }
+
   if (isset($item['width']) && isset($item['height'])) {
     $image['width'] = $item['width'];
     $image['height'] = $item['height'];
   }
 
   $entity_title = entity_label($entity_type, $entity);
+
+  switch ($settings['photobox_caption']) {
+    case 'auto':
+      // If the title is empty use alt or the entity title in that order.
+      if (!empty($image['title'])) {
+        $caption = $image['title'];
+      }
+      elseif (!empty($image['alt'])) {
+        $caption = $image['alt'];
+      }
+      elseif (!empty($entity_title)) {
+        $caption = $entity_title;
+      }
+      else {
+        $caption = '';
+      }
+      break;
+    case 'title':
+      $caption = $image['title'];
+      break;
+    case 'alt':
+      $caption = $image['alt'];
+      break;
+    case 'content_title':
+      $caption = $entity_title;
+      break;
+    case 'custom':
+      $caption = token_replace($settings['photobox_caption_custom'], array($entity_type => $entity, 'file' => (object) $item), array('clear' => TRUE));
+      break;
+    default:
+      $caption = '';
+  }
+  $image['title'] = $caption;
 
   // Build the gallery id.
   list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
@@ -53,7 +90,7 @@ function theme_photobox_image_formatter($variables) {
       $gallery_id = 'gallery-' . $field['field_name'];
       break;
     case 'custom':
-      $gallery_id = $settings['colorbox_gallery_custom'];
+      $gallery_id = $settings['photobox_gallery_custom'];
       break;
     default:
       $gallery_id = '';
@@ -66,7 +103,7 @@ function theme_photobox_image_formatter($variables) {
     $path = file_create_url($image['path']);
   }
 
-  return theme('photobox_imagefield', array('image' => $image, 'path' => $path, 'gid' => $gallery_id));
+  return theme('photobox_imagefield', array('image' => $image, 'path' => $path, 'title' => $caption, 'gid' => $gallery_id));
 }
 
 /**
@@ -97,8 +134,8 @@ function theme_photobox_imagefield($variables) {
   $options = array(
     'html' => TRUE,
     'attributes' => array(
-      'title' => $variables['image']['title'],
-      'class' => implode(' ', $class),
+      'title' => $variables['title'],
+      'class' => $class,
       'rel' => $variables['gid'],
     )
   );

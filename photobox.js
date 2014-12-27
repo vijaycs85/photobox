@@ -5,7 +5,7 @@
 
   Drupal.behaviors.photobox = {};
   Drupal.behaviors.photobox.attach = function(context, settings) {
-    $('a.photobox', context).parent().photobox('a');
+    $('a.photobox', context).parent().photobox('a.photobox');
   };
 
 })(jQuery);
