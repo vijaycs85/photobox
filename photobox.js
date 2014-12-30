@@ -5,7 +5,16 @@
 
   Drupal.behaviors.photobox = {};
   Drupal.behaviors.photobox.attach = function(context, settings) {
-    $('a.photobox', context).parent().photobox('a.photobox');
+    var gallery_rels = [];
+    $('a.photobox', context).each(function(index, element) {
+      var rel = $(this).attr('rel');
+      if ($.inArray(rel, gallery_rels) == -1) {
+        gallery_rels.push(rel);
+      }
+    });
+    gallery_rels.forEach(function(rel, i, arr) {
+      $('a.photobox[rel="' + rel + '"]', context).parent().photobox('a.photobox[rel="' + rel + '"]');
+    });
   };
 
 })(jQuery);
