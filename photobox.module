@@ -240,8 +240,7 @@ function photobox_field_formatter_view($entity_type, $entity, $field, $instance,
       '#delta' => $delta,
     );
     // We need to add it to every delta for the File entity display to work correctly.
-    $element[$delta]['#attached']['library'][] = array('photobox', 'photobox');
-    $element[$delta]['#attached']['js'][drupal_get_path('module', 'photobox') . '/photobox.js'] = array();
+    $element[$delta]['#attached'] = photobox_attached_resources();
   }
 
   return $element;
@@ -271,6 +270,18 @@ function photobox_theme($existing, $type, $theme, $path) {
         'gid' => NULL,
       ),
       'file' => 'photobox.theme.inc',
+    ),
+  );
+}
+
+/**
+ * Utility function to get #attached resources.
+ */
+function photobox_attached_resources() {
+  return array(
+    'library' => array(array('photobox', 'photobox')),
+    'js' => array(
+      drupal_get_path('module', 'photobox') . '/photobox.js',
     ),
   );
 }
