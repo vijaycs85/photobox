@@ -5,15 +5,15 @@
 
   Drupal.behaviors.photobox = {};
   Drupal.behaviors.photobox.attach = function(context, settings) {
-    var gallery_rels = [];
+    var galleries = [];
     $('a.photobox', context).each(function(index, element) {
-      var rel = $(this).attr('rel');
-      if ($.inArray(rel, gallery_rels) == -1) {
-        gallery_rels.push(rel);
+      var gallery = $(this).data('photoboxGallery');
+      if ($.inArray(gallery, galleries) == -1) {
+        galleries.push(gallery);
       }
     });
-    gallery_rels.forEach(function(rel, i, arr) {
-      $('a.photobox[rel="' + rel + '"]', context).parent().photobox('a.photobox[rel="' + rel + '"]');
+    galleries.forEach(function(gallery, i, arr) {
+      $('a.photobox[data-photobox-gallery="' + gallery + '"]', context).parent().photobox('a.photobox[data-photobox-gallery="' + gallery + '"]');
     });
   };
 

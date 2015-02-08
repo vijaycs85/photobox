@@ -136,7 +136,7 @@ function theme_photobox_imagefield($variables) {
     'attributes' => array(
       'title' => $variables['title'],
       'class' => $class,
-      'rel' => $variables['gid'],
+      'data-photobox-gallery' => $variables['gid'],
     )
   );
 
