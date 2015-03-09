@@ -13,7 +13,7 @@
       }
     });
     galleries.forEach(function(gallery, i, arr) {
-      $('a.photobox[data-photobox-gallery="' + gallery + '"]', context).parent().photobox('a.photobox[data-photobox-gallery="' + gallery + '"]');
+      $(context).photobox('a.photobox[data-photobox-gallery="' + gallery + '"]');
     });
   };
 
