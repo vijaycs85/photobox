@@ -5,13 +5,31 @@
  */
 
 /**
+ * Implements hook_menu().
+ */
+function photobox_menu() {
+  $items = array(
+    'admin/config/media/photobox' => array(
+      'title' => 'Photobox',
+      'description' => 'Configure Photobox settings.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('photobox_settings_form'),
+      'access arguments' => array('administer site configuration'),
+      'file' => 'photobox.admin.inc',
+    ),
+  );
+
+  return $items;
+}
+
+/**
  * Implements hook_field_formatter_info().
  */
 function photobox_field_formatter_info() {
   $formatters = array(
     'photobox' => array(
       'label'       => t('Photobox'),
-      //'field types' => array('image', 'imagefield_crop', 'media', 'field_collection'),
+      // 'field types' => array('image', 'imagefield_crop', 'media', 'field_collection'),
       'field types' => array('image'),
       'settings'    => array(
         'photobox_content_image_style' => '',
@@ -19,13 +37,6 @@ function photobox_field_formatter_info() {
         'photobox_image_style' => '',
         'photobox_gallery' => 'post',
         'photobox_gallery_custom' => '',
-        'photobox_loop' => 1,
-        'photobox_thumbs' => 1,
-        'photobox_counter' => 1,
-        'photobox_hide_flash' => 1,
-        'photobox_keys_close' => '27, 88, 67',
-        'photobox_keys_prev' => '37, 80',
-        'photobox_keys_next' => '39, 78',
         'photobox_caption' => 'auto',
         'photobox_caption_custom' => '',
       ),
@@ -139,7 +150,7 @@ function photobox_field_formatter_settings_form($field, $instance, $view_mode, $
     );
   }
   else {
-    $element['colorbox_token'] = array(
+    $element['photobox_token'] = array(
       '#type' => 'fieldset',
       '#title' => t('Replacement patterns'),
       '#description' => '<strong class="error">' . t('For token support the <a href="@token_url">token module</a> must be installed.', array('@token_url' => 'http://drupal.org/project/token')) . '</strong>',
@@ -278,10 +289,20 @@ function photobox_theme($existing, $type, $theme, $path) {
  * Utility function to get #attached resources.
  */
 function photobox_attached_resources() {
+  $settings = array();
+  foreach (_photobox_settings() as $key => $setting) {
+    $settings[$key] = (bool) $setting;
+  }
   return array(
     'library' => array(array('photobox', 'photobox')),
     'js' => array(
       drupal_get_path('module', 'photobox') . '/photobox.js',
+      array(
+        'data' => array(
+          'photobox' => $settings,
+        ),
+        'type' => 'setting',
+      ),
     ),
   );
 }
@@ -371,4 +392,23 @@ function _photobox_library_version() {
   }
 
   return $version;
+}
+
+/**
+ * Helper function returning list of Photobox library settings.
+ */
+function _photobox_settings() {
+  return array(
+    'history' => variable_get('photobox_history', 1),
+    'loop' => variable_get('photobox_loop', 1),
+    'thumbs' => variable_get('photobox_thumbs', 1),
+    'zoomable' => variable_get('photobox_zoomable', 1),
+  );
+  /*
+   'photobox_counter' => 1,
+   'photobox_hide_flash' => 1,
+   'photobox_keys_close' => '27, 88, 67',
+   'photobox_keys_prev' => '37, 80',
+   'photobox_keys_next' => '39, 78',
+   */
 }

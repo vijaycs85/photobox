@@ -1,6 +1,7 @@
 name = Photobox
 description = "Integrates Photobox image gallery plugin."
 core = 7.x
-package = "Fields"
+package = Media
+configure = admin/config/media/photobox
 dependencies[] = image
 dependencies[] = jquery_update
