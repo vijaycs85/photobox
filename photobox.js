@@ -8,6 +8,7 @@
     // Set Photobox settings.
     $.extend(window._photobox.defaults, Drupal.settings.photobox);
 
+    // Find all galleries on the page.
     var galleries = [];
     $('a.photobox', context).each(function(index, element) {
       var gallery = $(this).data('photoboxGallery');
@@ -15,8 +16,18 @@
         galleries.push(gallery);
       }
     });
+
+    // Initiate each gallery.
     galleries.forEach(function(gallery, i, arr) {
-      $(context).photobox('a.photobox[data-photobox-gallery="' + gallery + '"]');
+      // Find all links in this gallery.
+      var $all_links = $('a.photobox[data-photobox-gallery="' + gallery + '"]', context),
+      $parents = $all_links.parents();
+      // Find all common parents.
+      $all_links.each(function(index, element) {
+        $parents = $parents.has($(this));
+      });
+      // Use first common parent as a container.
+      $parents.first().photobox('a.photobox[data-photobox-gallery="' + gallery + '"]');
     });
   };
 
