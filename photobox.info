@@ -1,0 +1,6 @@
+name = Photobox
+description = "Integrates Photobox image gallery plugin."
+core = 6.x
+package = Media
+dependencies[] = imagecache
+dependencies[] = jquery_update
